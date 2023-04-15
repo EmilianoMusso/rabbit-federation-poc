@@ -1,0 +1,1 @@
+docker compose -f docker-compose.yml -p rabbit-federation-poc up -d

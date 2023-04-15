@@ -1,0 +1,60 @@
+version: "3"
+services:
+
+  rabbit01:
+    image: upstream-rabbitmq
+    build: ./images/rabbitmq-fed
+    hostname: rabbit01
+    restart: unless-stopped
+    volumes:
+      - ./images/rabbitmq-fed/scripts:/scripts
+      - rabbit01-data:/var/lib/rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - common-net
+
+  rabbit02:
+    image: downstream-rabbitmq-01
+    build: ./images/rabbitmq-fed
+    hostname: rabbit02
+    restart: unless-stopped
+    depends_on:
+      - rabbit01
+    volumes:
+      - ./images/rabbitmq-fed/scripts:/scripts
+      - rabbit02-data:/var/lib/rabbitmq      
+    ports:
+      - "7979:5672"
+      - "8080:15672"
+    networks:
+      - common-net   
+
+  rabbit03:
+    image: downstream-rabbitmq-02
+    build: ./images/rabbitmq-fed
+    hostname: rabbit03
+    restart: unless-stopped
+    depends_on:
+      - rabbit01
+    volumes:
+      - ./images/rabbitmq-fed/scripts:/scripts
+      - rabbit03-data:/var/lib/rabbitmq
+    ports:
+      - "9999:5672"
+      - "9090:15672"
+    networks:
+      - common-net
+
+volumes:
+  rabbit01-data:
+    driver: local
+  rabbit02-data:
+    driver: local
+  rabbit03-data:
+    driver: local
+
+networks:
+  common-net:
+    driver: bridge
